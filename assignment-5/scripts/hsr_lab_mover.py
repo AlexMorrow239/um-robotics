@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""Navigation controller for the HSR robot in the simulated lab.
+
+Manages route execution, pose tracking, and movement commands. Reads predefined
+waypoint routes and drives the robot through them using the move base action server.
+"""
 
 import ast
 import datetime
@@ -47,10 +52,6 @@ class hsr_lab_mover:
         # Original
         reconf_base.update_configuration({'forbid_radius': 0.25, 'obstacle_radius': 0.35, 'obstacle_occupancy': 10})
         reconf_head.update_configuration({'forbid_radius': 0.25, 'obstacle_radius': 0.35, 'obstacle_occupancy': 10})
-
-        # New
-        # reconf_base.update_configuration({'forbid_radius': 0.15, 'obstacle_radius': 0.25, 'obstacle_occupancy': 10})
-        # reconf_head.update_configuration({'forbid_radius': 0.15, 'obstacle_radius': 0.25, 'obstacle_occupancy': 10})
 
         reconf_base.update_configuration({'forbid_radius': 0.25, 'obstacle_radius': 0.35, 'obstacle_occupancy': 10})
         reconf_head.update_configuration({'forbid_radius': 0.25, 'obstacle_radius': 0.35, 'obstacle_occupancy': 10})
@@ -118,31 +119,14 @@ class hsr_lab_mover:
 
         self.init_logging_data()
 
-        # self.locations_json = self.read_locations_json(locations_json_file='rc_lab_pos.json')
-
         self.locations_json = self.read_locations_json(locations_json_file='rc_lab_pos.json')
-
-        # print(f'locations_json:')
 
         self.general_helper.pprint_dict(dict=self.locations_json)
 
         if ros_master_status == 'hm':
             self.lap_name = 'real_short_lap'
-            # self.lap_name = 'real_full_front_lap'
-            # self.lap_name = 'real_full_back_lap'
-            # self.lap_name = 'target_real'
-            # self.lap_name = 'target_real_random'
-            # self.lap_name = 'target_real_lap_test'
-            # self.lap_name = 'target_real_lap_backwards_test'
         else:
-            # self.lap_name = 'sim_short_lap'
             self.lap_name = 'sim_full_front_lap'
-            # self.lap_name = 'sim_full_back_lap'
-            # self.lap_name = 'sim_random_0'
-            # self.lap_name = 'sim_random_1'
-            # self.lap_name = 'sim_random_2'
-            # self.lap_name = 'sim_full_both_lap'
-            # self.lap_name = 'target_sim'
 
         self.lap_name = rospy.get_param('~lap_name', self.lap_name)
 
@@ -158,9 +142,6 @@ class hsr_lab_mover:
 
         self.start_idx = None
         self.end_idx = None
-
-        # self.start_idx = 3
-        # self.end_idx = 5
 
         if self.start_idx is not None and self.end_idx is not None:
             self.locations_list = self.locations_list[self.start_idx:self.end_idx]
@@ -193,15 +174,10 @@ class hsr_lab_mover:
             if self.robot_center_camera_groundtruth_rot is not None:
                 self.robot_center_camera_groundtruth_rot = euler_from_quaternion(quaternion=self.robot_center_camera_groundtruth_rot)
 
-            # print(f'self.robot_center_camera_groundtruth_trans:', self.robot_center_camera_groundtruth_trans)
-            # print(f'self.robot_center_camera_grountruth_rot:', self.robot_center_camera_groundtruth_rot)
-
             if self.robot_center_camera_groundtruth_trans is not None and self.robot_center_camera_groundtruth_rot is not None:
                 self.current_robot_center_camera_groundtruth_pose = [self.robot_center_camera_groundtruth_trans[0], self.robot_center_camera_groundtruth_trans[1], self.robot_center_camera_groundtruth_rot[2]]
             else:
                 self.current_robot_center_camera_groundtruth_pose = None
-            
-            # print(f'self.robot_center_camera_groundtruth_pose:', self.current_robot_center_camera_groundtruth_pose)
 
     def delete_all_markers(self, ns):
         print(f'Deleting all markers: {ns}')
@@ -283,8 +259,6 @@ class hsr_lab_mover:
 
         orientation_euler = euler_from_quaternion(quaternion=[orientation.x, orientation.y, orientation.z, orientation.w])
 
-        # print(f'orientation_euler: {orientation_euler}')
-
         pose = [position[0], position[1], orientation_euler[2]]
 
         return pose
@@ -309,19 +283,13 @@ class hsr_lab_mover:
 
     def isaac_robot_pose_cb(self, marker):
         self.current_isaac_robot_pose = self.pose_from_marker(marker=marker)
-        # print(f'self.current_isaac_robot_pose:', self.current_isaac_robot_pose)
 
     def odom_pose_cb(self, marker):
         self.current_odom_robot_pose = self.pose_from_marker(marker=marker)
-        # print(f'self.current_odom_robot_pose:', self.current_odom_robot_pose)
 
     def amcl_pose_cb(self, msg):
-        # print(f'pose_msg:', msg)
-
         pose = msg.pose.pose
         covariance = msg.pose.covariance
-
-        # print(f'covariance:', covariance)
 
         pose_pos = pose.position
 
@@ -331,15 +299,9 @@ class hsr_lab_mover:
 
         orientation = pose.orientation
 
-        # print(f'orient quaternion:', orientation)
-
         orientation_euler = euler_from_quaternion(quaternion=[orientation.x, orientation.y, orientation.z, orientation.w])
 
-        # print(f'orient euler:', orientation_euler)
-
         self.current_amcl_mean_pose = [pose_pos_x, pose_pos_y, orientation_euler[2]]
-
-        # print(f'self.current_amcl_mean_pose: ', self.current_amcl_mean_pose)
 
         var_x = float(covariance[0])
         var_y = float(covariance[7])
@@ -347,15 +309,11 @@ class hsr_lab_mover:
 
         self.current_amcl_var = [var_x, var_y, var_theta]
 
-        # print(f'self.current_amcl_var:', self.current_amcl_var)
-
         std_x = np.sqrt(max(0.0, var_x))
         std_y = np.sqrt(max(0.0, var_y))
         std_theta = np.sqrt(max(0.0, var_theta))
 
         self.current_amcl_std = [std_x, std_y, std_theta]
-
-        # print(f'self.current_amcl_std:', self.current_amcl_std)
 
     def mean_pf_pose_cb(self, marker):
         self.current_mean_pf_robot_pose = self.pose_from_marker(marker=marker)
@@ -363,16 +321,11 @@ class hsr_lab_mover:
     def pf_particle_mean_occ_coverage_cb(self, data):
         self.current_mean_pf_occ_coverage = float(ast.literal_eval(data.data))
 
-        # print(f'self.current_mean_pf_occ_coverage:', self.current_mean_pf_occ_coverage)
-
     def pf_var_cb(self, data):
         self.current_pf_var = [float(elem) for elem in ast.literal_eval(data.data)]
 
     def pf_std_cb(self, data):
         self.current_pf_std = [float(elem) for elem in ast.literal_eval(data.data)]
-
-    # def landmark_sensor_data_cb(self, marker_array):
-    #     self.current_landmark_sensor_array = marker_array
 
     def num_landmarks_seen_data_cb(self, data):
         self.current_num_landmarks_seen = int(str(data.data))
@@ -410,9 +363,6 @@ class hsr_lab_mover:
 
             # Current pf std.
             rospy.Subscriber('/hsr_pf_localization/pf_particles_std', String, self.pf_std_cb)
-
-            # # Current sensor data array
-            # rospy.Subscriber('/hsr_pf_localization/pf_sensor_data/markers', MarkerArray, self.landmark_sensor_data_cb)
 
             # Current num landmarks seen
             rospy.Subscriber('/hsr_pf_localization/pf_sensor_data/num_landmarks_seen', String, self.num_landmarks_seen_data_cb)
@@ -627,8 +577,6 @@ class hsr_lab_mover:
 
                     self.landmarks_seen_list.append(self.current_num_landmarks_seen)
 
-                    # self.landmarks_seen_list.append(len(list(self.current_landmark_sensor_array.markers)))
-
                 if ros_master_status == 'hm':
                     self.num_reached_poses = len(self.robot_center_camera_groundtruth_pose_list)
                 else:
@@ -756,214 +704,12 @@ class hsr_lab_mover:
 
             self.write_logging_data(data_file_name=log_file_name)
 
-        # if ros_master_status == 'hm':
-        #     for k,v in self.locations_list:
-        #         print(f'k: {k}, v:{v}')
-
-        #         self.simple_mover.move_robot_to_go()
-
-        #         x,y,theta = v
-
-        #         self.simple_mover.move_base_abs_goal(x=x, y=y, theta=theta)
-
-        #         if self.pose_delay_time is not None:
-        #             rospy.sleep(int(self.pose_delay_time))
-        #         else:
-        #             rospy.sleep(1)
-
-        # else:
-        #     for k, v in self.locations_list:
-        #         print(f'k: {k}, v: {v}')
-
-        #         self.simple_mover.move_robot_to_go()
-
-        #         x,y,theta = v
-
-        #         self.simple_mover.move_base_abs_goal(x=x, y=y, theta=theta)
-
-        #         rospy.sleep(1)
-
-        #         if self.chosen_algorithm == 'amcl':
-        #             x_dist_groundtruth_amcl = np.abs(self.current_isaac_robot_pose[0] - self.current_amcl_mean_pose[0])
-        #             print(f'current_x_dist_groundtruth_amcl:', x_dist_groundtruth_amcl)
-
-        #             y_dist_groundtruth_amcl = np.abs(self.current_isaac_robot_pose[1] - self.current_amcl_mean_pose[1])
-        #             print(f'current_y_dist_groundtruth_amcl:', y_dist_groundtruth_amcl)
-
-        #             euclid_dist_groundtruth_amcl = np.linalg.norm(np.array(self.current_isaac_robot_pose[:2]) - np.array(self.current_amcl_mean_pose[:2]))
-        #             print(f'current euclid dist groundtruth amcl:', euclid_dist_groundtruth_amcl)
-
-        #             angular_diff_groundtruth_amcl = (self.current_isaac_robot_pose[2] - self.current_amcl_mean_pose[2] + np.pi) % (2 * np.pi) - np.pi
-        #             print(f'current angular diff groundtruth amcl:', angular_diff_groundtruth_amcl)
-
-        #         if self.chosen_algorithm == 'pf':
-        #             x_dist_groundtruth_pf = np.abs(self.current_isaac_robot_pose[0] - self.current_mean_pf_robot_pose[0])
-        #             print(f'current_x_dist_groundtruth_pf:', x_dist_groundtruth_pf)
-
-        #             y_dist_groundtruth_pf = np.abs(self.current_isaac_robot_pose[1] - self.current_mean_pf_robot_pose[1])
-        #             print(f'current_y_dist_groundtruth_pf:', y_dist_groundtruth_pf)
-
-        #             euclid_dist_groundtruth_pf = np.linalg.norm(np.array(self.current_isaac_robot_pose[:2]) - np.array(self.current_mean_pf_robot_pose[:2]))
-        #             print(f'current euclid dist groundtruth pf:', euclid_dist_groundtruth_pf)
-
-        #             angular_diff_groundtruth_pf = (self.current_isaac_robot_pose[2] - self.current_mean_pf_robot_pose[2] + np.pi) % (2 * np.pi) - np.pi
-        #             print(f'current angular diff groundtruth pf:', angular_diff_groundtruth_pf)
-
-        #         # If the PF estimate is too high, you'll get a negative error (under-rotation).
-        #         # If the PF estimate is too low, you'll get a positive error (over-rotation).
-
-        #         if capture_data_trigger:
-        #             self.isaac_robot_pose_list.append(self.current_isaac_robot_pose)
-        #             self.odom_pose_list.append(self.current_odom_robot_pose)
-
-        #             if self.chosen_algorithm == 'amcl':
-        #                 self.amcl_mean_pose_list.append(self.current_amcl_mean_pose)
-        #                 self.amcl_var_list.append(self.current_amcl_var)
-        #                 self.amcl_std_list.append(self.current_amcl_var)
-
-        #                 self.landmarks_seen_list.append(60)
-
-        #             if self.chosen_algorithm == 'pf':
-        #                 self.pf_mean_pose_list.append(self.current_mean_pf_robot_pose)
-        #                 self.pf_var_list.append(self.current_pf_var)
-        #                 self.pf_std_list.append(self.current_pf_std)
-
-        #                 self.landmarks_seen_list.append(len(list(self.current_landmark_sensor_array.markers)))
-
-        #             self.num_reached_poses = len(self.isaac_robot_pose_list)
-
-        #             if self.chosen_algorithm == 'amcl':
-        #                 self.groundtruth_amcl_x_pos_diff_list.append(x_dist_groundtruth_amcl)
-        #                 self.groundtruth_amcl_y_pos_diff_list.append(y_dist_groundtruth_amcl)
-        #                 self.groundtruth_amcl_xy_pos_diff_list.append(euclid_dist_groundtruth_amcl)
-        #                 self.groundtruth_amcl_angle_diff_list.append(angular_diff_groundtruth_amcl)
-
-        #             if self.chosen_algorithm == 'pf':
-        #                 self.groundtruth_pf_x_pos_diff_list.append(x_dist_groundtruth_pf)
-        #                 self.groundtruth_pf_y_pos_diff_list.append(y_dist_groundtruth_pf)
-        #                 self.groundtruth_pf_xy_pos_diff_list.append(euclid_dist_groundtruth_pf)
-        #                 self.groundtruth_pf_angle_diff_list.append(angular_diff_groundtruth_pf)
-
-        #             print('self.num_target_poses:', self.num_target_poses)
-        #             print('self.num_reached_poses:', self.num_reached_poses)
-        #             print('route_poses:', self.locations_dict_radians)
-        #             print(f'self.isaac_robot_pose_list:', self.isaac_robot_pose_list)
-        #             print(f'self.odom_pose_list:', self.odom_pose_list)
-
-        #             if self.chosen_algorithm == 'amcl':
-        #                 print(f'self.amcl_mean_pose_list:', self.amcl_mean_pose_list)
-        #                 print(f'self.amcl_var_list:', self.amcl_var_list)
-        #                 print(f'self.amcl_std_list:', self.amcl_std_list)
-        #                 print(f'self.landmarks_seen_list:', self.landmarks_seen_list)
-        #                 print(f'self.groundtruth_amcl_x_pos_diff_list:', self.groundtruth_amcl_x_pos_diff_list)
-        #                 print(f'self.groundtruth_amcl_y_pos_diff_list:', self.groundtruth_amcl_y_pos_diff_list)
-        #                 print(f'self.groundtruth_amcl_xy_pos_diff_list:', self.groundtruth_amcl_xy_pos_diff_list)
-        #                 print(f'self.groundtruth_amcl_angle_diff_list:', self.groundtruth_amcl_angle_diff_list)
-
-        #             if self.chosen_algorithm == 'pf':
-        #                 print(f'self.pf_mean_pose_list:', self.pf_mean_pose_list)
-        #                 print(f'self.pf_var_list:', self.pf_var_list)
-        #                 print(f'self.pf_std_list:', self.pf_std_list)
-        #                 print(f'self.landmarks_seen_list:', self.landmarks_seen_list)
-        #                 print(f'self.groundtruth_pf_x_pos_diff_list:', self.groundtruth_pf_x_pos_diff_list)
-        #                 print(f'self.groundtruth_pf_y_pos_diff_list:', self.groundtruth_pf_y_pos_diff_list)
-        #                 print(f'self.groundtruth_pf_xy_pos_diff_list:', self.groundtruth_pf_xy_pos_diff_list)
-        #                 print(f'self.groundtruth_pf_angle_diff_list:', self.groundtruth_pf_angle_diff_list)
-           
-        #     if self.chosen_algorithm == 'amcl':
-        #         amcl_variances_np = np.array(self.amcl_var_list)
-
-        #         self.mean_var_x = np.mean(amcl_variances_np[:, 0])
-        #         self.mean_var_y = np.mean(amcl_variances_np[:, 1])
-        #         self.mean_var_theta = np.mean(amcl_variances_np[:, 2])
-
-        #         amcl_std_np = np.array(self.amcl_std_list)
-
-        #         self.mean_std_x = np.mean(amcl_std_np[:, 0])
-        #         self.mean_std_y = np.mean(amcl_std_np[:, 1])
-        #         self.mean_std_theta = np.mean(amcl_std_np[:, 2])
-                
-        #         # Calculate rmse here
-        #         self.rmse_x_pos = np.sqrt(np.mean(np.array(self.groundtruth_amcl_x_pos_diff_list) ** 2))
-        #         self.rmse_y_pos = np.sqrt(np.mean(np.array(self.groundtruth_amcl_y_pos_diff_list) ** 2))
-        #         self.rmse_xy_pos= np.sqrt(np.mean(np.array(self.groundtruth_amcl_xy_pos_diff_list) ** 2))
-        #         self.rmse_angle = np.sqrt(np.mean(np.array(self.groundtruth_amcl_angle_diff_list) ** 2))
-
-        #         print(f'Final RMSE X Position: {self.rmse_x_pos:.4f}')
-        #         print(f'Final RMSE Y Position: {self.rmse_y_pos:.4f}')
-        #         print(f'Final RMSE XY Position: {self.rmse_xy_pos:.4f}')
-        #         print(f'Final RMSE Orientation: {self.rmse_angle:.4f} rad')
-
-        #         self.mae_x_pos = np.mean(np.abs(np.array(self.groundtruth_amcl_x_pos_diff_list)))
-        #         self.mae_y_pos = np.mean(np.abs(np.array(self.groundtruth_amcl_y_pos_diff_list)))
-        #         self.mae_xy_pos = np.mean(np.abs(np.array(self.groundtruth_amcl_xy_pos_diff_list)))
-        #         self.mae_angle = np.mean(np.abs(np.array(self.groundtruth_amcl_angle_diff_list)))
-
-        #         print(f'Final MAE X Position:', self.mae_x_pos)
-        #         print(f'Final MAE Y Position:', self.mae_y_pos)
-        #         print(f'Final MAE XY Position:', self.mae_xy_pos)
-        #         print(f'Final MAE Orientation:', self.mae_angle)
-
-        #     if self.chosen_algorithm == 'pf':
-        #         # Calculate mean variance here
-        #         pf_variances_np = np.array(self.pf_var_list)
-
-        #         self.mean_var_x = np.mean(pf_variances_np[:, 0])
-        #         self.mean_var_y = np.mean(pf_variances_np[:, 1])
-        #         self.mean_var_theta = np.mean(pf_variances_np[:, 2])
-
-        #         # Calculate mean std here
-        #         pf_std_np = np.array(self.pf_std_list)
-
-        #         self.mean_std_x = np.mean(pf_std_np[:, 0])
-        #         self.mean_std_y = np.mean(pf_std_np[:, 1])
-        #         self.mean_std_theta = np.mean(pf_std_np[:, 2])
-                
-        #         # Calculate rmse here
-        #         self.rmse_x_pos = np.sqrt(np.mean(np.array(self.groundtruth_pf_x_pos_diff_list) ** 2))
-        #         self.rmse_y_pos = np.sqrt(np.mean(np.array(self.groundtruth_pf_y_pos_diff_list) ** 2))
-        #         self.rmse_xy_pos= np.sqrt(np.mean(np.array(self.groundtruth_pf_xy_pos_diff_list) ** 2))
-        #         self.rmse_angle = np.sqrt(np.mean(np.array(self.groundtruth_pf_angle_diff_list) ** 2))
-
-        #         print(f'Final RMSE X Position: {self.rmse_x_pos:.4f}')
-        #         print(f'Final RMSE Y Position: {self.rmse_y_pos:.4f}')
-        #         print(f'Final RMSE XY Position: {self.rmse_xy_pos:.4f}')
-        #         print(f'Final RMSE Orientation: {self.rmse_angle:.4f} rad')
-
-        #         self.mae_x_pos = np.mean(np.abs(np.array(self.groundtruth_pf_x_pos_diff_list)))
-        #         self.mae_y_pos = np.mean(np.abs(np.array(self.groundtruth_pf_y_pos_diff_list)))
-        #         self.mae_xy_pos = np.mean(np.abs(np.array(self.groundtruth_pf_xy_pos_diff_list)))
-        #         self.mae_angle = np.mean(np.abs(np.array(self.groundtruth_pf_angle_diff_list)))
-
-        #         print(f'Final MAE X Position:', self.mae_x_pos)
-        #         print(f'Final MAE Y Position:', self.mae_y_pos)
-        #         print(f'Final MAE XY Position:', self.mae_xy_pos)
-        #         print(f'Final MAE Orientation:', self.mae_angle)
-
-        #     if capture_data_trigger:
-        #         now = datetime.datetime.now()
-        #         local_now = now.astimezone()
-        #         local_tz = local_now.tzinfo
-        #         local_tzname = local_tz.tzname(local_now)
-
-        #         if current_iter is not None:
-        #             log_file_name = f'{now.strftime("%Y%m%d_%H%M%S")}_{local_tzname.strip().lower()}_lap_{current_iter}.json'
-        #         else:
-        #             log_file_name = f'{now.strftime("%Y%m%d_%H%M%S")}_{local_tzname.strip().lower()}.json'
-
-        #         self.write_logging_data(data_file_name=log_file_name)
-
     def lab_mover_behavior_start(self):
         print('Starting move behavior!!!')
 
-        # self.publish_move_locations()
         rospy.Timer(rospy.Duration(self.node_time_interval), self.publish_move_locations_timed_cb)
 
         self.capture_robot_positions()
-            
-        # self.move_behavior()
-
-        # self.move_behavior(capture_data_trigger=True)
 
         start = 0
         num_iterations = 30
@@ -982,7 +728,6 @@ class hsr_lab_mover:
 
     def start_behavior_cb(self, data):
         data_str = data.data
-        # print(f'received data: {data_str}')
 
         if data_str == 'start' and not self.behavior_started:
             self.behavior_started = True
