@@ -1518,90 +1518,23 @@ class hsr_pf_localization:
                                         timeout=rospy.Duration(1))
 
             (trans, rot) = self.tf_helper.tf_listener.lookupTransform(target_frame='base_link', source_frame='base_range_sensor_link', time=rospy.Time(0))
-            # print(f'(trans, rot):', (trans, rot))
 
             self.sensor_offset_x, self.sensor_offset_y, sensor_offset_z = trans
 
         except Exception as e:
-            print(f'Exception:', e)
+            rospy.logwarn(f'TF lookup exception: {e}')
 
         if X is not None and X.size == 0:
-            print(f'INITALIZE PARTICLES!')
-
-            # Spawn one particle on odometry for debugging.
-
-            # X = np.array([[self.current_odom_data[0], self.current_odom_data[1], self.current_odom_data[2]]])
-
-            # Spawn particles randomly around radius.
-
-            # X = self.init_particles(count=1, position=[self.occ_center_x_world,self.occ_center_y_world,0], radius=self.occ_radius_world, orientation=math.pi)
-            # X = self.init_particles(count=100, position=[self.occ_center_x_world,self.occ_center_y_world,0], radius=self.occ_radius_world, orientation=math.pi)
-            # X = self.init_particles(count=1000, position=[self.occ_center_x_world,self.occ_center_y_world,0], radius=self.occ_radius_world, orientation=math.pi)
-            # X = self.init_particles(count=6000, position=[self.occ_center_x_world,self.occ_center_y_world,0], radius=self.occ_radius_world, orientation=math.pi)
-            # X = self.init_particles(count=5, position=[1,0,0], radius=10, orientation=0)
-
-            # X = self.init_particles(count=200, position=[self.current_odom_data[0], self.current_odom_data[1], 0], radius=2, orientation=math.pi )
-
-            # X = self.init_particles(count=10, position=[self.current_odom_data[0], self.current_odom_data[1], 0], radius=0.0, orientation=0)
-            # X = self.init_particles(count=10, position=[self.current_odom_data[0], self.current_odom_data[1], 0], radius=0.5, orientation=math.pi)
-            # X = self.init_particles(count=20, position=[self.current_odom_data[0], self.current_odom_data[1], 0], radius=0.5, orientation=math.pi)
-
-            # X = self.init_particles(count=10, position=[self.current_odom_data[0] + self.sensor_offset_x, self.current_odom_data[1], 0], radius=0.2, orientation=math.pi/2)
+            rospy.loginfo('Initializing particles')
 
             X = self.init_particles(count=self.num_tracking_particles, spawn_position=[self.current_odom_data[0] + self.sensor_offset_x, self.current_odom_data[1], 0], spawn_orientation=self.current_odom_data[2], radius=1, range_orientation=math.pi/2)
 
-            # X = self.init_particles(count=500, spawn_position=[self.current_odom_data[0] + self.sensor_offset_x, self.current_odom_data[1], 0], spawn_orientation=self.current_odom_data[2], radius=1, range_orientation=math.pi/2)
-
-            # X = self.init_particles(count=200, position=[self.current_odom_data[0], self.current_odom_data[1], 0], radius=2, orientation=math.pi)
-
-            # Spawn particles randomly throughout unoccupied occupancy grid cells.
-
-            # X = self.init_particles_unoccupied_map(count=1, orientation=math.pi)
-
-            # X = self.init_particles_unoccupied_map(count=50, orientation=math.pi)
-
-            # X = self.init_particles_unoccupied_map(count=100, orientation=math.pi)
-            # X = self.init_particles_unoccupied_map(count=200, orientation=math.pi)
-            # X = self.init_particles_unoccupied_map(count=500, orientation=math.pi)
-            # X = self.init_particles_unoccupied_map(count=1000, orientation=math.pi)
-            # X = self.init_particles_unoccupied_map(count=2000, orientation=math.pi)
-            # X = self.init_particles_unoccupied_map(count=2500, orientation=math.pi)
-
-            # if ros_master_status == 'hm':
-            #     X = self.init_particles(count=200, spawn_position=[self.current_odom_data[0] + self.sensor_offset_x, self.current_odom_data[1], 0], spawn_orientation=self.current_odom_data[2], radius=1, range_orientation=math.pi/2)
-            # if ros_master_status == 'sm':
-            #     X = self.init_particles(count=20, spawn_position=[self.current_odom_data[0] + self.sensor_offset_x, self.current_odom_data[1], 0], spawn_orientation=self.current_odom_data[2], radius=1, range_orientation=math.pi/2)
-
             if self.pf_kidnap_trigger:
-                print(f'INITALIZE PARTICLES - KIDNAP!')
-
-                # X = self.init_particles_unoccupied_map(count=100, orientation=math.pi)
-                # X = self.init_particles_unoccupied_map(count=200, orientation=math.pi)
-                # X = self.init_particles_unoccupied_map(count=300, orientation=math.pi)
-                # X = self.init_particles_unoccupied_map(count=400, orientation=math.pi)
-                # X = self.init_particles_unoccupied_map(count=500, orientation=math.pi)
-                # X = self.init_particles_unoccupied_map(count=350, orientation=math.pi, occ_xmin_world=0.0, occ_xmax_world=9.7, occ_ymin_world=-0.5, occ_ymax_world=6.9)
-                # X = self.init_particles_unoccupied_map(count=500, orientation=math.pi, occ_xmin_world=0.0, occ_xmax_world=9.7)
-                # X = self.init_particles_unoccupied_map(count=800, orientation=math.pi)
-                # X = self.init_particles_unoccupied_map(count=900, orientation=math.pi)
-                # X = self.init_particles_unoccupied_map(count=1000, orientation=math.pi)
-                # X = self.init_particles_unoccupied_map(count=2000, orientation=math.pi)
-                # X = self.init_particles_unoccupied_map(count=3000, orientation=math.pi)
-                # X = self.init_particles_unoccupied_map(count=4000, orientation=math.pi)
-                # X = self.init_particles_unoccupied_map(count=5000, orientation=math.pi)
-                # X = self.init_particles_unoccupied_map(count=6000, orientation=math.pi)
-                # X = self.init_particles_unoccupied_map(count=7000, orientation=math.pi)
-                # X = self.init_particles_unoccupied_map(count=8000, orientation=math.pi)
-                # X = self.init_particles_unoccupied_map(count=9000, orientation=math.pi)
-                # X = self.init_particles_unoccupied_map(count=10000, orientation=math.pi)
-                # X = self.init_particles_unoccupied_map(count=15000, orientation=math.pi)
-
-                # Particle unoccupied init + init_processing
-                # self.kidnap_start_time = time.time()
+                rospy.loginfo('Initializing particles (kidnap recovery)')
 
                 if ros_master_status == 'hm':
                     if self.global_kidnapping_num_particles is not None and self.global_kidnapping_max_orientation is not None and self.global_kidnapping_occ_map_xmin is not None and self.global_kidnapping_occ_map_ymin is not None and self.global_kidnapping_occ_map_ymax is not None:
-                        print(f'Global Kidnapping parameters provided!')
+                        rospy.loginfo('Global kidnapping parameters provided')
                         X = self.init_particles_unoccupied_map(count=float(self.global_kidnapping_num_particles), orientation=float(self.global_kidnapping_max_orientation), occ_xmin_world=float(self.global_kidnapping_occ_map_xmin), occ_xmax_world=float(self.global_kidnapping_occ_map_xmax), occ_ymin_world=float(self.global_kidnapping_occ_map_ymin), occ_ymax_world=float(self.global_kidnapping_occ_map_ymax))
                     else:
                         X = self.init_particles_unoccupied_map(count=400, orientation=math.pi, occ_xmin_world=-0.4, occ_xmax_world=11.3, occ_ymin_world=-0.7, occ_ymax_world=6.6)
@@ -1612,12 +1545,7 @@ class hsr_pf_localization:
                     else:
                         X = self.init_particles_unoccupied_map(count=350, orientation=math.pi, occ_xmin_world=0.0, occ_xmax_world=9.7, occ_ymin_world=-0.5, occ_ymax_world=6.9)
 
-                # Particle init processing
                 self.kidnap_start_time = time.time()
-
-                pass
-
-            # print(f'X:', X)
 
             X_new = X
             mean = self.current_odom_data

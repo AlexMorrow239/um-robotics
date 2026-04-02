@@ -27,6 +27,9 @@ MARKER_ID_START = 3000
 MARKER_ID_GOAL = 3001
 MARKER_ID_UPDATED_PATH = 4000  # For dynamic path updates
 
+# Module-level ROS resources (initialized in __main__)
+tf_listener = None
+marker_pub = None
 
 
 class Node:
@@ -36,7 +39,7 @@ class Node:
         self.parent = None
 
 class RRT:
-    def __init__(self, start, goal, map_size, occupancy_grid, map_data, step_size=0.3, max_iter=1000000, x_min = -1, x_max = 11, y_min=-1, y_max=8):
+    def __init__(self, start, goal, map_size, occupancy_grid, map_data, step_size=0.3, max_iter=1000000, x_min=-1, x_max=11, y_min=-1, y_max=8, inflation_radius=5.0):
         self.start = Node(start[0], start[1])
         self.goal = Node(goal[0], goal[1])
         self.map_size = map_size
@@ -45,12 +48,11 @@ class RRT:
         self.max_iter = max_iter
         self.node_list = [self.start]
         self.original_occupancy_grid = occupancy_grid
-        self.occupancy_grid = self.inflate_obstacles(5.0)
-        self.x_min = -1
-        self.x_max = 11
-        self.y_min= -1
-        self.y_max= 8
-        
+        self.occupancy_grid = self.inflate_obstacles(inflation_radius)
+        self.x_min = x_min
+        self.x_max = x_max
+        self.y_min = y_min
+        self.y_max = y_max
 
 
     def get_random_node(self, goal_bias=0.05):
@@ -257,6 +259,10 @@ class RRT:
         return smoothed_path
 
 class RobotController:
+    LOOKAHEAD_DISTANCE = 0.4
+    DANGER_ANGLE_RANGE = 0.5
+    DANGER_THRESHOLD = 0.7
+
     def __init__(self, path, goal, occupancy_grid, map_data, map_size, marker_pub, distance_threshold=0.4, speed=0.2, angular_speed=1.0):
         self.path = path
         self.goal = goal
@@ -270,8 +276,6 @@ class RobotController:
         self.waypoint_index = 0
         self.cmd_pub = rospy.Publisher('/hsrb/command_velocity', Twist, queue_size=10)
         self.scan_sub = rospy.Subscriber('/hsrb/base_scan', LaserScan, self.laser_callback)
-
-        # self.odom_sub = rospy.Subscriber('/hsrb/odom', Odometry, self.odom_callback)
         self.current_position = None
         self.current_orientation = None
         self.robot_position()
@@ -285,15 +289,10 @@ class RobotController:
         self.goal = new_goal
 
     def detect_obstacle(self, scan_data):
-        # Parameters
-        lookahead_distance = 0.4  # Close obstacles only
-        danger_angle_range = 0.5  # Narrow forward cone
-        danger_threshold = 0.7  # 70% of readings must indicate danger
-
         # Calculate indices for forward cone
         angles_per_reading = scan_data.angle_increment
         center_index = len(scan_data.ranges) // 2
-        angle_indices = int(danger_angle_range / angles_per_reading)
+        angle_indices = int(self.DANGER_ANGLE_RANGE / angles_per_reading)
         start_idx = max(0, center_index - angle_indices)
         end_idx = min(len(scan_data.ranges), center_index + angle_indices + 1)
 
@@ -306,13 +305,13 @@ class RobotController:
             
             if not math.isnan(range_reading) and not math.isinf(range_reading):
                 valid_count += 1
-                if range_reading < lookahead_distance:
+                if range_reading < self.LOOKAHEAD_DISTANCE:
                     danger_count += 1
 
         # Only trigger if we have enough valid readings and high danger ratio
         if valid_count > 0:
             danger_ratio = danger_count / valid_count
-            return danger_ratio > danger_threshold and valid_count > 5
+            return danger_ratio > self.DANGER_THRESHOLD and valid_count > 5
 
         return False
 
@@ -324,7 +323,7 @@ class RobotController:
         if new_path:
             self.path = new_path
             self.waypoint_index = 0
-            clear_rrt_tree(marker_pub)
+            clear_rrt_tree(self.marker_pub)
             publish_rrt_tree(self.marker_pub, rrt.node_list)
             publish_updated_path(self.marker_pub, new_path)
         else:
@@ -342,8 +341,8 @@ class RobotController:
 
 
     def robot_position(self):
-        listener.waitForTransform('map', 'base_link', rospy.Time(0), rospy.Duration(1.0))
-        (trans,rot) = listener.lookupTransform( "map", "base_link", rospy.Time(0))
+        tf_listener.waitForTransform('map', 'base_link', rospy.Time(0), rospy.Duration(1.0))
+        (trans,rot) = tf_listener.lookupTransform("map", "base_link", rospy.Time(0))
 
         x = trans[0]
         y = trans[1]
@@ -405,7 +404,7 @@ class RobotController:
 def publish_rrt_tree(marker_pub, node_list):
     """Publish both RRT nodes and their connections (tree structure)"""
     if not node_list or len(node_list) == 0:
-        print("No nodes to publish")
+        rospy.logwarn("No nodes to publish")
         return
     
     # Publish tree connections first (if there are enough nodes)
@@ -505,7 +504,7 @@ def clear_rrt_tree(marker_pub, max_nodes=1000):
 def publish_path(marker_pub, path):
     """Publish the initial planned path"""
     if not path:
-        print("No path to publish.")
+        rospy.logwarn("No path to publish")
         return
     
     path_marker = Marker()
@@ -535,7 +534,7 @@ def publish_path(marker_pub, path):
 def publish_updated_path(marker_pub, path):
     """Publish an updated/replanned path (different color and ID from initial path)"""
     if not path:
-        print("No updated path to publish.")
+        rospy.logwarn("No updated path to publish")
         return
 
     path_marker = Marker()
@@ -614,15 +613,15 @@ def map_callback(msg):
     map_width = msg.info.width
     map_height = msg.info.height
     map_size = (map_width, map_height)
-    print(map_width, map_height, map_size)
+    rospy.loginfo(f"Map received: {map_width}x{map_height}")
 
     # Convert OccupancyGrid data to a numpy array
     occupancy_grid = np.array(msg.data).reshape((map_height, map_width))
     map_data = msg
 
     # Get initial robot position
-    listener.waitForTransform('map', 'base_link', rospy.Time(0), rospy.Duration(1.0))
-    (trans,rot) = listener.lookupTransform("map", "base_link", rospy.Time(0))
+    tf_listener.waitForTransform('map', 'base_link', rospy.Time(0), rospy.Duration(1.0))
+    (trans,rot) = tf_listener.lookupTransform("map", "base_link", rospy.Time(0))
     start = (trans[0], trans[1])
     
     # Define multiple waypoints to visit sequentially
@@ -653,7 +652,7 @@ def map_callback(msg):
         # Run RRT for this segment
         rrt = RRT(current_start, goal, map_size, occupancy_grid, map_data)
         path = rrt.plan()
-        print(f"Path to waypoint {i+1}: {path}")
+        rospy.loginfo(f"Path to waypoint {i+1}: {path}")
         
         if path:
             # Publish RRT tree visualization
@@ -682,8 +681,8 @@ def map_callback(msg):
 
 if __name__ == '__main__':
     rospy.init_node('rrt_path_planning')
-    listener = TransformListener()
+    tf_listener = TransformListener()
     marker_pub = rospy.Publisher('rrt_visualization_marker', Marker, queue_size=10)
     rospy.Subscriber('map', OccupancyGrid, map_callback)
-    print("got map")
+    rospy.loginfo("RRT path planner initialized, waiting for map...")
     rospy.spin()

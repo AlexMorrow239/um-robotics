@@ -1,5 +1,4 @@
 import argparse
-import ast
 import sys
 import select
 import time

@@ -81,12 +81,8 @@ class GeneralHelper:
     def __init__(self):
         self.establish_package_root(execution_file_path=os.path.abspath(__file__))
         self.configure_separator_output()
-        self.internet_connection_test()
 
         self.tqdm_import()
-
-        self.train_dir_path = os.path.join(self.package_root, 'train_data')
-        self.chosen_classes = ['inhibitor', 'neurotransmitter', 'measurement', 'cavity', 'animal', 'cell', 'culture', 'organ', 'tissue', 'medium', 'molecule', 'inflammation', 'proliferation', 'regeneration', 'injury']
 
     def sep(self):
         print()
