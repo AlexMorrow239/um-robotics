@@ -1,0 +1,222 @@
+GlobalPlanner:
+  allow_unknown: false
+  default_tolerance: 0.2
+  planner_window_x: 10.0
+  planner_window_y: 10.0
+  visualize_potential: true
+TebLocalPlannerROS:
+  acc_lim_theta: 15.0
+  acc_lim_x: 1.5
+  acc_lim_y: 99.98999999999998
+  allow_init_with_backwards_motion: false
+  cmd_angle_instead_rotvel: false
+  costmap_obstacles_behind_robot_dist: 1.5
+  dt_hysteresis: 0.1
+  dt_ref: 0.2
+  dynamic_obstacle_inflation_dist: 0.6
+  enable_multithreading: true
+  exact_arc_length: false
+  feasibility_check_no_poses: 5
+  force_reinit_new_goal_angular: 0.78
+  force_reinit_new_goal_dist: 1.0
+  free_goal_vel: true
+  global_plan: true
+  global_plan_viapoint_sep: 0.1
+  h_signature_prescaler: 1.0
+  h_signature_threshold: 0.1
+  holonomic_robot: true
+  global_plan_overwrite_orientation: true
+  use_proportional_orientation: true
+  include_costmap_obstacles: true
+  include_dynamic_obstacles: false
+  inflation_dist: 0.4
+  is_footprint_dynamic: false
+  legacy_obstacle_association: false
+  max_global_plan_lookahead_dist: 3.0
+  max_number_classes: 5
+  max_vel_theta: 2.5
+  max_vel_trans: 0.8
+  max_vel_x: 0.8
+  max_vel_x_backwards: 0.8
+  max_vel_y: 0.8
+  min_obstacle_dist: 0.4
+  min_turning_radius: 0.0
+  min_vel_theta: 0.1
+  min_vel_trans: 0.05
+  min_vel_x: -0.8
+  min_vel_y: -0.8
+  no_inner_iterations: 5
+  no_outer_iterations: 4
+  obstacle_association_cutoff_factor: 5.0
+  obstacle_association_force_inclusion_factor: 1.5
+  obstacle_cost_exponent: 1.0
+  obstacle_cost_weight: 0.0
+  obstacle_heading_threshold: 0.45
+  obstacle_poses_affected: 30
+  optimization_activate: true
+  optimization_verbose: false
+  oscillation_recovery: true
+  path_bias: 20.0
+  penalty_epsilon: 0.05
+  publish_feedback: false
+  roadmap_graph_area_length_scale: 1.0
+  roadmap_graph_area_width: 5.0
+  roadmap_graph_no_samples: 15
+  selection_alternative_time_cost: false
+  selection_cost_hysteresis: 0.0
+  selection_obst_cost_scale: 2.0
+  selection_prefer_initial_plan: 0.95
+  selection_viapoint_cost_scale: 1.0
+  shrink_horizon_backup: true
+  smoothness_weight: 20.0
+  switching_blocking_period: 0.0
+  teb_autosize: true
+  via_points_ordered: false
+  viapoints_all_candidates: true
+  visualize_hc_graph: false
+  visualize_with_time_as_z_axis_scale: 0.0
+  weight_acc_lim_theta: 1.0
+  weight_acc_lim_x: 1.0
+  weight_acc_lim_y: 1.0
+  weight_adapt_factor: 2.0
+  weight_dynamic_obstacle: 50.0
+  weight_dynamic_obstacle_inflation: 0.1
+  weight_inflation: 1.0
+  weight_kinematics_forward_drive: 1000.0
+  weight_kinematics_nh: 0.0
+  weight_kinematics_turning_radius: 1.0
+  weight_max_vel_theta: 1.0
+  weight_max_vel_x: 2.0
+  weight_max_vel_y: 2.0
+  weight_obstacle: 1.0
+  weight_optimaltime: 1.0
+  weight_shortest_path: 10.0
+  weight_viapoint: 100.0
+  wheelbase: 1.0
+  xy_goal_tolerance: 0.1
+  yaw_goal_tolerance: 0.1
+aggressive_reset:
+  reset_distance: 1.84
+base_global_planner: navfn/NavfnROS
+base_local_planner: teb_local_planner/TebLocalPlannerROS
+clearing_rotation_allowed: true
+conservative_reset:
+  reset_distance: 3.0
+conservative_reset_dist: 3.0
+controller_frequency: 5.0
+controller_patience: 5.0
+global_costmap:
+  footprint: '[]'
+  footprint_padding: 0.01
+  global_frame: map
+  height: 10
+  inflater:
+    cost_scaling_factor: 10.0
+    enabled: true
+    inflate_unknown: false
+    inflation_radius: 0.4
+    robot_radius: 0.35
+  obstacles:
+    base_scan:
+      clearing: true
+      data_type: LaserScan
+      marking: true
+      max_obstacle_height: 0.3
+      min_obstacle_height: 0.1
+      obstacle_range: 6.0
+      raytrace_range: 10.0
+      topic: hsrb/base_scan
+    combination_method: 1
+    enabled: true
+    footprint_clearing_enabled: true
+    head_xtion:
+      clearing: true
+      data_type: PointCloud2
+      marking: true
+      max_obstacle_height: 1.0
+      min_obstacle_height: 0.05
+      obstacle_range: 6.0
+      raytrace_range: 10.0
+      topic: hsrb/head_rgbd_sensor/depth_registered/rectified_points
+    max_obstacle_height: 2.0
+    observation_sources: base_scan
+    obstacle_range: 2.5
+  origin_x: 0.0
+  origin_y: 0.0
+  plugins:
+  - name: static_map
+    type: costmap_2d::StaticLayer
+  - name: obstacles
+    type: costmap_2d::ObstacleLayer
+  - name: inflater
+    type: costmap_2d::InflationLayer
+  publish_frequency: 0.0
+  resolution: 0.05
+  robot_base_frame: base_link
+  robot_radius: 0.35
+  static_map:
+    enabled: true
+  transform_tolerance: 0.1
+  update_frequency: 3.0
+  width: 10
+local_costmap:
+  footprint: '[]'
+  footprint_padding: 0.01
+  global_frame: map
+  height: 4
+  inflater:
+    cost_scaling_factor: 10.0
+    enabled: true
+    inflate_unknown: false
+    inflation_radius: 0.4
+    robot_radius: 0.35
+  obstacles:
+    base_scan:
+      clearing: true
+      data_type: LaserScan
+      marking: true
+      max_obstacle_height: 0.3
+      min_obstacle_height: 0.1
+      obstacle_range: 6.0
+      raytrace_range: 10.0
+      topic: hsrb/base_scan
+    combination_method: 1
+    enabled: true
+    footprint_clearing_enabled: true
+    head_xtion:
+      clearing: true
+      data_type: PointCloud2
+      marking: true
+      max_obstacle_height: 1.0
+      min_obstacle_height: 0.05
+      obstacle_range: 6.0
+      raytrace_range: 10.0
+      topic: hsrb/head_rgbd_sensor/depth_registered/rectified_points
+    max_obstacle_height: 2.0
+    observation_sources: base_scan
+    obstacle_range: 2.5
+  origin_x: 0.0
+  origin_y: 0.0
+  plugins:
+  - name: obstacles
+    type: costmap_2d::ObstacleLayer
+  - name: inflater
+    type: costmap_2d::InflationLayer
+  publish_frequency: 2.0
+  resolution: 0.05
+  robot_base_frame: base_link
+  robot_radius: 0.35
+  rolling_window: true
+  transform_tolerance: 0.1
+  update_frequency: 3.0
+  width: 4
+make_plan_add_unreachable_goal: true
+make_plan_clear_costmap: true
+max_planning_retries: -1
+oscillation_distance: 0.5
+oscillation_timeout: 10.0
+planner_frequency: 0.05
+planner_patience: 5.0
+recovery_behavior_enabled: true
+restore_defaults: false
+shutdown_costmaps: false

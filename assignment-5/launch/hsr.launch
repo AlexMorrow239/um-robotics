@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="prefix" default="/hsrb" />
+  <arg name="robot" default="hsrb4s" />
+  <arg name="use_laser_odom" default="false" />
+
+  <param name="/use_sim_time" value="true" />
+
+  <param name="robot_description"
+    command="$(find add_odom_virtual_joints)/add_odom_virtual_joints.py $(find xacro)/xacro --inorder $(find hsrb_description)/robots/hsrb4s.urdf.xacro" />
+  <!--
+  <param name="robot_description" command="$(find xacro)/xacro '$(find hsrb_description)/robots/$(arg robot).urdf.xacro'" />
+  -->
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <remap from="joint_states" to="$(arg prefix)/joint_states" />
+  </node>
+
+  <node name="head_l_stereo_camera_frame_pub" pkg="tf" type="static_transform_publisher"
+    args="0 0 0 0 0 0 head_l_stereo_camera_link head_l_stereo_camera_frame 100" />
+  <node name="head_r_stereo_camera_frame_pub" pkg="tf" type="static_transform_publisher"
+    args="0 0 0 0 0 0 head_r_stereo_camera_link head_r_stereo_camera_frame 100" />
+  <node name="head_rgbd_sensor_rgb_frame_pub" pkg="tf" type="static_transform_publisher"
+    args="0 0 0 0 0 0 head_rgbd_sensor_link head_rgbd_sensor_rgb_frame 100" />
+  <node name="head_rgbd_sensor_depth_frame_pub" pkg="tf" type="static_transform_publisher"
+    args="0 0 0 0 0 0 head_rgbd_sensor_link head_rgbd_sensor_depth_frame 100" />
+
+  <node name="image_republish_head_l_stereo_camera" pkg="image_transport" type="republish" args="raw compressed">
+    <remap from="in" to="$(arg prefix)/head_l_stereo_camera/image_rect_color" />
+    <remap from="out" to="$(arg prefix)/head_l_stereo_camera/image_rect_color" />
+  </node>
+  <node name="image_republish_head_r_stereo_camera" pkg="image_transport" type="republish" args="raw compressed">
+    <remap from="in" to="$(arg prefix)/head_r_stereo_camera/image_rect_color" />
+    <remap from="out" to="$(arg prefix)/head_r_stereo_camera/image_rect_color" />
+  </node>
+  <node name="image_republish_head_rgbd_sensor_rgb" pkg="image_transport" type="republish" args="raw compressed">
+    <remap from="in" to="$(arg prefix)/head_rgbd_sensor/rgb/image_rect_color" />
+    <remap from="out" to="$(arg prefix)/head_rgbd_sensor/rgb/image_rect_color" />
+  </node>
+  <!--
+  <node name="image_republish_head_rgbd_sensor_depth" pkg="image_transport" type="republish" args="raw compressed">
+    <remap from="in" to="$(arg prefix)/head_rgbd_sensor/depth_registered/image" />
+    <remap from="out" to="$(arg prefix)/head_rgbd_sensor/depth_registered/image" />
+  </node>
+  -->
+  <node name="image_republish_hand_camera" pkg="image_transport" type="republish" args="raw compressed">
+    <remap from="in" to="$(arg prefix)/hand_camera/image_raw" />
+    <remap from="out" to="$(arg prefix)/hand_camera/image_raw" />
+  </node>
+
+  <node name="pointcloud_nodelet_manager" pkg="nodelet" type="nodelet" args="manager" output="screen"/>
+  <node name="pointcloud_republish_head_depth_sensor" pkg="nodelet" type="nodelet" args="load depth_image_proc/point_cloud_xyzrgb pointcloud_nodelet_manager --no-bond">
+    <remap from="rgb/camera_info" to="$(arg prefix)/head_rgbd_sensor/depth_registered/camera_info"/>
+    <remap from="rgb/image_rect_color" to="$(arg prefix)/head_rgbd_sensor/rgb/image_rect_color"/>
+    <remap from="depth_registered/image_rect" to="$(arg prefix)/head_rgbd_sensor/depth_registered/image_rect_raw"/>
+    <remap from="depth_registered/points" to="$(arg prefix)/head_rgbd_sensor/depth_registered/rectified_points"/>
+  </node>
+
+  <node pkg="laser_scan_matcher" type="laser_scan_matcher_node" name="laser_scan_matcher_node" output="screen">
+    <param name="base_frame" value="base_link"/>
+    <param name="use_imu" value="true"/>
+    <param name="use_odom" value="false"/>
+    <param name="max_iterations" value="10"/>
+    <param name="publish_tf" value="false"/>
+    <param name="publish_pose" value="false"/>
+    <param name="publish_pose_stamped" value="true"/>
+    <remap from="scan" to="$(arg prefix)/base_scan" />
+    <remap from="imu/data" to="$(arg prefix)/base_imu/data" />
+    <remap from="pose_stamped" to="$(arg prefix)/laser_scan_matcher/pose" />
+  </node>
+
+  <!-- Run the main MoveIt executable without trajectory execution (we do not have controllers configured by default) -->
+  <include file="$(find hsrb_moveit_config)/launch/move_group.launch">
+    <arg name="allow_trajectory_execution" value="true"/>
+    <arg name="fake_execution" value="false"/>
+    <arg name="info" value="true"/>
+    <arg name="debug" value="false"/>
+    <arg name="joint_states_topic" value="/hsrb/joint_states" />
+    <arg name="robot_name" value="hsrb"/>
+  </include>
+  <!-- Relay joint_states for MoveIt Commander -->
+  <node name="relay_joint_states" pkg="topic_tools" type="relay" args="/hsrb/joint_states /joint_states">
+    <param name="lazy" value="true"/>
+  </node>
+
+  <!-- rosnav -->
+  <!-- <arg name="map_file" default="$(find hsrb_rosnav_config)/maps/white_space/map.yaml"/>
+  <include file="$(find hsrb_rosnav_config)/launch/hsrb_nav.launch">
+    <arg name="map_file" value="$(arg map_file)"/>
+    <arg name="localization_type" value="iris_lama_loc2d"/>
+  </include> -->
+
+  <!-- chris rosnav -->
+
+  <!-- white_space -->
+  <!-- <arg name="map_file" default="$(find assignment-5-AlexMorrow239)/maps/white_space/map.yaml"/>
+  <include file="$(find hsrb_rosnav_config)/launch/hsrb_nav.launch">
+    <arg name="map_file" value="$(arg map_file)"/>
+    <arg name="localization_type" value="iris_lama_loc2d"/>
+  </include> -->
+
+  <!-- rc lab -->
+  <!-- <arg name="map_file" default="$(find assignment-5-AlexMorrow239)/maps/isaac_rc_lab/map.yaml"/>
+  <include file="$(find hsrb_rosnav_config)/launch/hsrb_nav.launch">
+    <arg name="map_file" value="$(arg map_file)"/>
+    <arg name="localization_type" value="iris_lama_loc2d"/>
+  </include> -->
+
+  <!-- rc lab uyen -->
+  <arg name="map_file" default="$(find assignment-5-AlexMorrow239)/maps/isaac_rc_lab_uyen/raw/map.yaml"/>
+  <!-- <arg name="map_file" default="$(find assignment-5-AlexMorrow239)/maps/isaac_rc_lab_uyen_five_cm/map.yaml"/> -->
+
+  <!-- <include file="$(find hsrb_rosnav_config)/launch/hsrb_nav.launch"> -->
+    <!-- <arg name="map_file" value="$(arg map_file)"/> -->
+    <!-- <arg name="localization_type" value="iris_lama_loc2d"/> -->
+  <!-- </include> -->
+
+  <include file="$(find assignment-5-AlexMorrow239)/launch/robocanes_hsrb_nav.launch">
+    <arg name="map_file" value="$(arg map_file)"/>
+    <arg name="localization_type" value="iris_lama_loc2d"/>
+  </include>
+
+  <!--rc lab uyen localization-->
+  <!-- <arg name="map_file" default="$(find assignment-5-AlexMorrow239)/maps/isaac_rc_lab_uyen/processed/map.yaml"/> -->
+  <!-- <include file="$(find hsrb_rosnav_config)/launch/hsrb_nav.launch"> -->
+    <!-- <arg name="map_file" value="$(arg map_file)"/> -->
+    <!-- <arg name="localization_type" value="iris_lama_loc2d"/> -->
+  <!-- </include> -->
+
+  <!-- pose_to_odom -->
+  <node pkg="topic_tools" type="relay" name="odom_relay"
+        args="/hsrb/laser_odom /hsrb/odom" if="$(arg use_laser_odom)" />
+  <node pkg="topic_tools" type="relay" name="odom_relay"
+        args="/hsrb/base_controller/odom /hsrb/odom" unless="$(arg use_laser_odom)" />
+
+  <node pkg="tf" type="static_transform_publisher" name="world_map" args="0 0 0 0 0 0 /world /map 100" />
+</launch>

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<launch>
+    <include file="$(find assignment-5-AlexMorrow239)/launch/hsr.launch"/>
+
+	<node pkg="tf" type="static_transform_publisher" name="map_base_link" args="0 0 0 0 0 0 /map /odom 100" />
+
+	<!-- Controller Teleop -->
+    <node pkg="joy" type="joy_node" name="remote_joy">
+		<param name="dev" type="string" value="/dev/input/js1"/>
+		<param name="autorepeat_rate" type="double" value="30.0"/>
+	</node>
+
+	<node name="hsr_isaac_controller_joy" pkg="assignment-5-AlexMorrow239" type="hsr_isaac_controller_joy.py" output="screen"/>
+
+	<!-- Keyboard Teleop -->
+	<!-- <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop_twist_keyboard" output="screen"> -->
+    	<!-- <remap from="cmd_vel" to="/hsrb/command_velocity"/> -->
+	<!-- </node> -->
+
+</launch>

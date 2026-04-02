@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- <include file="$(find assignment-5-AlexMorrow239)/launch/robocanes_hsr.launch"/> -->
+    <!-- <include file="$(find assignment-5-AlexMorrow239)/launch/robocanes_hsr_correction_sim.launch"/> -->
+
+    <!-- Run default (no parameters) -->
+    <!-- <node name="hsr_pf_localization" pkg="assignment-5-AlexMorrow239" type="hsr_pf_localization.py" output="screen"/> -->
+
+    <!-- Run custom parameters (default parameters for reference) -->
+
+    <!-- Parameters for controlling pf occupancy grid processing behavior -->
+    <!-- occupied_threshold affects if a cell in the static occupancy map is determined as occupied or not. >=90 is considered occupied while <90 is not -->
+    <arg name="occupied_threshold" value="90"/>
+
+    <!-- Parameters for controlling pf laser scan processing behavior -->
+    <arg name="laser_scan_num_factor" value="0.25"/>
+
+    <!-- Parameters for controlling pf measurement model behavior -->
+    <!-- raycast_particle_max_step_size affects the traversal step distance for each ray, utilized for checking the next distance of if a cell is occupied or free -->
+    <!-- raycast_particle_max_raycast_dist affects how far traversal steps should before cutoff. This is determined by the maximum size of the room in the width and/or height dimension. -->
+    <arg name="raycast_particle_step_size" value="0.05"/>
+    <arg name="raycast_particle_max_raycast_dist" value="12.0"/>
+
+    <!-- Parameter for adjusting pf num tracking particles -->
+    <arg name="num_tracking_particles" value="20"/>
+
+    <!-- Parameters controlling pf gaussian noise behavior -->
+    <!-- mean affects systematic bias of odometry towards a particular direction (shouldn't really touch) -->
+    <!-- stdev applies small pertubations to odometry which particles inherit. Well-balanced stdev allows for faster convergence of global localization while not exhibiting too noisy/jittering behavior of the particles. -->
+    <arg name="odom_gaussian_noise_mean" value="0"/>
+    <arg name="odom_gaussian_noise_stdev" value="0.002"/>
+
+    <!-- Parameters controlling the pf sample motion model used emulate systematic motion of odometry for particle motion. -->
+    <!-- x_factor affects particles moving along forward/backward motion of robot. -->
+    <!-- y_factor affects particles moving along sideways motion of robot. -->
+    <!-- theta_factor affects particls rotating along +z axis of robot. -->
+    <!-- Mu affects affects shape of noise distribution -->
+    <!-- Sigma affects incrases/decreases particle spread  -->
+    <arg name="sample_motion_model_x_factor" value="1.0"/>
+    <arg name="sample_motion_model_y_factor" value="1.0"/>
+    <arg name="sample_motion_model_theta_factor" value="1.0"/>
+    <arg name="sample_motion_model_mu" value="2"/>
+    <arg name="sample_motion_model_sigma" value="1"/>
+
+    <!-- Parameters adjusting characteristics of the measurement model -->
+    <arg name="measurement_weight_sigma" value="0.2"/>
+    <arg name="measurement_weight_epsilon" value="1"/>
+    
+    <!-- Parameters controlling pf global kidnapping behavior -->
+    <!-- num_particles affects the number of particle flower bundle that are to spawn within the bounds of the occupancy map while spawning only in unoccupied cells.-->
+    <!-- num_particle_angles affects the angle diff between particle in a flower bundle. The upper bound of particles is num_particles * num_particle_angles. In practice, may be less as it depends on the number of occupied cells within the map. -->
+    <!-- max_orientation dictates the maximum angle range that the particles are allowed to spawn in (shouldn't really be modified) -->
+    <!-- occ_map_xmin is the minimum x point for where you'd like particles to spawn at on the map. -->
+    <!-- occ_map_xmax is the maximum x point for where you'd like particles to spawn at on the map. -->
+    <!-- occ_map_ymin is the minimum y point for where you'd like particles to spawn at on the map. -->
+    <!-- occ_map_ymax is the maximum y point for where you'd like particles to spawn at on the map. -->
+    <arg name="global_kidnapping_num_particles" value="350"/>
+    <arg name="global_kidnapping_num_particle_angles" value="16"/>
+    <arg name="global_kidnapping_max_orientation" value="3.14"/>
+    <arg name="global_kidnapping_occ_map_xmin" value="0.0"/>
+    <arg name="global_kidnapping_occ_map_xmax" value="9.7"/>
+    <arg name="global_kidnapping_occ_map_ymin" value="-0.5"/>
+    <arg name="global_kidnapping_occ_map_ymax" value="6.9"/>
+
+    <!-- Parameter for enabling pf odom correction via TMC 2D Pose Estimate. -->
+    <arg name="enable_odom_correction" value="False"/>
+
+    <node name="hsr_pf_localization" pkg="assignment-5-AlexMorrow239" type="hsr_pf_localization.py" output="screen">
+        <param name="occupied_threshold" value="$(arg occupied_threshold)"/>
+        <param name="laser_scan_num_factor" value="$(arg laser_scan_num_factor)"/>
+        <param name="raycast_particle_step_size" value="$(arg raycast_particle_step_size)"/>
+        <param name="raycast_particle_max_raycast_dist" value="$(arg raycast_particle_max_raycast_dist)"/>
+        <param name="num_tracking_particles" value="$(arg num_tracking_particles)"/>
+        <param name="odom_gaussian_noise_mean" value="$(arg odom_gaussian_noise_mean)"/>
+        <param name="odom_gaussian_noise_stdev" value="$(arg odom_gaussian_noise_stdev)"/>
+        <param name="odom_gaussian_noise" value="$(arg odom_gaussian_noise_stdev)"/>
+        <param name="sample_motion_model_x_factor" value="$(arg sample_motion_model_x_factor)"/>
+        <param name="sample_motion_model_y_factor" value="$(arg sample_motion_model_y_factor)"/>
+        <param name="sample_motion_model_theta_factor" value="$(arg sample_motion_model_theta_factor)"/>
+        <param name="sample_motion_model_mu" value="$(arg sample_motion_model_mu)"/>
+        <param name="sample_motion_model_sigma" value="$(arg sample_motion_model_sigma)"/>
+        <param name="measurement_weight_sigma" value="$(arg measurement_weight_sigma)"/>
+        <param name="measurement_weight_epsilon" value="$(arg measurement_weight_epsilon)"/>
+        <param name="global_kidnapping_num_particles" value="$(arg global_kidnapping_num_particles)"/>
+        <param name="global_kidnapping_num_particle_angles" value="$(arg global_kidnapping_num_particle_angles)"/>
+        <param name="global_kidnapping_max_orientation" value="$(arg global_kidnapping_max_orientation)"/>
+        <param name="global_kidnapping_occ_map_xmin" value="$(arg global_kidnapping_occ_map_xmin)"/>
+        <param name="global_kidnapping_occ_map_xmax" value="$(arg global_kidnapping_occ_map_xmax)"/>
+        <param name="global_kidnapping_occ_map_ymin" value="$(arg global_kidnapping_occ_map_ymin)"/>
+        <param name="global_kidnapping_occ_map_ymax" value="$(arg global_kidnapping_occ_map_ymax)"/>
+        <param name="enable_odom_correction" value="$(arg enable_odom_correction)"/>
+    </node>
+</launch>

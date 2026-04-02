@@ -1,0 +1,6 @@
+<launch>
+    <node name="rrt_navigation" pkg="assignment-6-AlexMorrow239" type="rrt_students.py" output="screen"/>
+
+    <node pkg='rviz' type="rviz" name='rviz'
+      args= '-d $(find assignment-6-AlexMorrow239)/rviz/rviz_assignment_6.rviz'/>
+</launch>

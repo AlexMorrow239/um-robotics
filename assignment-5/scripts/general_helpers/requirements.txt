@@ -1,0 +1,8 @@
+# Install all python packages using `pip install -r requirements.txt`
+# Add dependencies from corresponding script below
+
+colorama==0.4.3
+requests==2.31.0
+PyYAML==6.0.1
+python-slugify==8.0.1
+tqdm==4.66.4

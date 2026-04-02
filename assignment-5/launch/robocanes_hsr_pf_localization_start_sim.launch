@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+    <include file="$(find assignment-5-AlexMorrow239)/launch/robocanes_hsr_correction_sim.launch"/>
+    <include file="$(find assignment-5-AlexMorrow239)/launch/robocanes_hsr_pf_localization_sim.launch"/>
+</launch>
