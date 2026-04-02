@@ -39,7 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
     <rosparam file="$(find hsrb_rosnav_config)/config/costmap_local.yaml" command="load" ns="local_costmap" />
     <rosparam file="$(find hsrb_rosnav_config)/config/costmap_global.yaml" command="load" ns="global_costmap" />
     <!-- <rosparam file="$(find hsrb_rosnav_config)/config/move_base.yaml" command="load" /> -->
-    <rosparam file="$(find assignment-5-AlexMorrow239)/config/move_base/move_base_chris.yaml" command="load" ns="/move_base"/>
+    <rosparam file="$(find hsr-localization-navigation)/config/move_base/move_base_chris.yaml" command="load" ns="/move_base"/>
 
     <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
     <remap from="odom" to="$(arg odom_topic)"/>

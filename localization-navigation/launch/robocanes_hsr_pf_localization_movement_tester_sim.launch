@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+    <include file="$(find hsr-localization-navigation)/launch/robocanes_hsr_pf_localization_start_sim.launch"/>
+    
+    <node name="hsr_lab_mover" pkg="hsr-localization-navigation" type="hsr_lab_mover.py" output="screen"></node>
+</launch>

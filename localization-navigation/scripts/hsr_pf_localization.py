@@ -44,7 +44,7 @@ from std_msgs.msg import String
 from visualization_msgs.msg import Marker, MarkerArray
 
 from rospkg import RosPack; rp = RosPack()
-repo_path = rp.get_path('assignment-5-AlexMorrow239')
+repo_path = rp.get_path('hsr-localization-navigation')
 sys.path.append(repo_path)
 
 from scripts.general_helpers.general_helper import GeneralHelper

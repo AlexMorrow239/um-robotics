@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+    <include file="$(find hsr-localization-navigation)/launch/robocanes_hsr.launch"/>
+
+    <node name="odom_correct_groundtruth" pkg="hsr-localization-navigation" type="odom_correct_groundtruth.py" output="screen"/>
+</launch>

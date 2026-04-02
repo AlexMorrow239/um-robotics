@@ -1,0 +1,6 @@
+<launch>
+    <node name="rrt_navigation" pkg="hsr-rrt-path-planning" type="rrt_planner.py" output="screen"/>
+
+    <node pkg='rviz' type="rviz" name='rviz'
+      args= '-d $(find hsr-rrt-path-planning)/rviz/rrt_navigation.rviz'/>
+</launch>

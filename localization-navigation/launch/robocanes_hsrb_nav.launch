@@ -10,7 +10,7 @@
 
   <!-- Move base conroller -->
   <!-- <include file="$(find hsrb_rosnav_config)/launch/include/move_base.launch.xml"/> -->
-  <include file="$(find assignment-5-AlexMorrow239)/launch/robocanes_move_base.launch.xml"/>
+  <include file="$(find hsr-localization-navigation)/launch/robocanes_move_base.launch.xml"/>
 
 
 </launch>

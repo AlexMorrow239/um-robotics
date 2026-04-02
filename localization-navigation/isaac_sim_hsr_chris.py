@@ -5,11 +5,15 @@ import time
 
 from process_handler import process_handler
 
-PACKAGE_NAME = "assignment-5-AlexMorrow239"
+PACKAGE_NAME = "hsr-localization-navigation"
 PACKAGE_PATH = subprocess.getoutput(f"rospack find {PACKAGE_NAME}")
 print(f"Package Path: {PACKAGE_PATH}")
 
-LAUNCH_NAME = 'robocanes_hsr_pf_localization_movement_tester_sim.launch'
+if 'error' in PACKAGE_PATH.lower():
+    print(f'source and run program again!')
+    exit()
+
+LAUNCH_NAME = 'robocanes_hsr_correction_sim.launch'
 LAUNCH_PATH = os.path.join(PACKAGE_PATH, 'launch', LAUNCH_NAME)
 print(f'roslaunch path:', LAUNCH_PATH)
 
@@ -37,23 +41,20 @@ print(f'RVIZ path:', RVIZ_PATH)
 
 # DEBUG
 roslaunch_cmd = f"roslaunch {LAUNCH_PATH}"
-
 isaac_sim_cmd = f"{ISAAC_SIM_PYTHON_PATH} {ISAAC_WORLD_PATH}"
-# isaac_sim_cmd = f"{ISAAC_SIM_PYTHON_PATH} {ISAAC_WORLD_PATH} --no-window"
-
 rviz_cmd = f"rviz -d {RVIZ_PATH}"
 
 # Start processes
 processes = {
-    "roslaunch": process_handler.start_process(roslaunch_cmd, capture_output=True),
-    "isaac_sim": process_handler.start_process(isaac_sim_cmd, capture_output=False),
+    "roslaunch": process_handler.start_process(roslaunch_cmd, capture_output=False),
+    "isaac_sim": process_handler.start_process(isaac_sim_cmd, capture_output=True),
     "rviz": process_handler.start_process(rviz_cmd, capture_output=False)
 }
 
-# signal.signal(signal.SIGINT, lambda signum, frame: process_handler.cleanup(processes))
-# signal.signal(signal.SIGTERM, lambda signum, frame: process_handler.cleanup(processes))
+signal.signal(signal.SIGINT, lambda signum, frame: process_handler.cleanup_exit(processes))
+signal.signal(signal.SIGTERM, lambda signum, frame: process_handler.cleanup_exit(processes))
 
-# # Wait indefinitely
+# Wait indefinitely
 try:
     while True:
         time.sleep(1)

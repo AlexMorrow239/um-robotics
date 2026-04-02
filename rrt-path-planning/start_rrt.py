@@ -5,7 +5,7 @@ import time
 
 from process_handler import process_handler
 
-PACKAGE_NAME = "assignment-5-AlexMorrow239"
+PACKAGE_NAME = "hsr-rrt-path-planning"
 PACKAGE_PATH = subprocess.getoutput(f"rospack find {PACKAGE_NAME}")
 print(f"Package Path: {PACKAGE_PATH}")
 

@@ -31,6 +31,6 @@ The planner builds a tree of collision-free paths by repeatedly sampling random 
 
 | File                      | Description                                                          |
 | ------------------------- | -------------------------------------------------------------------- |
-| `scripts/rrt_students.py` | RRT planner, obstacle checking, path smoothing, and robot controller |
+| `scripts/rrt_planner.py` | RRT planner, obstacle checking, path smoothing, and robot controller |
 | `launch/`                 | ROS launch files for the planning environment                        |
 | `rviz/`                   | RViz configuration for visualizing the tree and planned paths        |

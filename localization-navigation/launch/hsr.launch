@@ -93,35 +93,35 @@
   <!-- chris rosnav -->
 
   <!-- white_space -->
-  <!-- <arg name="map_file" default="$(find assignment-5-AlexMorrow239)/maps/white_space/map.yaml"/>
+  <!-- <arg name="map_file" default="$(find hsr-localization-navigation)/maps/white_space/map.yaml"/>
   <include file="$(find hsrb_rosnav_config)/launch/hsrb_nav.launch">
     <arg name="map_file" value="$(arg map_file)"/>
     <arg name="localization_type" value="iris_lama_loc2d"/>
   </include> -->
 
   <!-- rc lab -->
-  <!-- <arg name="map_file" default="$(find assignment-5-AlexMorrow239)/maps/isaac_rc_lab/map.yaml"/>
+  <!-- <arg name="map_file" default="$(find hsr-localization-navigation)/maps/isaac_rc_lab/map.yaml"/>
   <include file="$(find hsrb_rosnav_config)/launch/hsrb_nav.launch">
     <arg name="map_file" value="$(arg map_file)"/>
     <arg name="localization_type" value="iris_lama_loc2d"/>
   </include> -->
 
   <!-- rc lab uyen -->
-  <arg name="map_file" default="$(find assignment-5-AlexMorrow239)/maps/isaac_rc_lab_uyen/raw/map.yaml"/>
-  <!-- <arg name="map_file" default="$(find assignment-5-AlexMorrow239)/maps/isaac_rc_lab_uyen_five_cm/map.yaml"/> -->
+  <arg name="map_file" default="$(find hsr-localization-navigation)/maps/isaac_rc_lab_uyen/raw/map.yaml"/>
+  <!-- <arg name="map_file" default="$(find hsr-localization-navigation)/maps/isaac_rc_lab_uyen_five_cm/map.yaml"/> -->
 
   <!-- <include file="$(find hsrb_rosnav_config)/launch/hsrb_nav.launch"> -->
     <!-- <arg name="map_file" value="$(arg map_file)"/> -->
     <!-- <arg name="localization_type" value="iris_lama_loc2d"/> -->
   <!-- </include> -->
 
-  <include file="$(find assignment-5-AlexMorrow239)/launch/robocanes_hsrb_nav.launch">
+  <include file="$(find hsr-localization-navigation)/launch/robocanes_hsrb_nav.launch">
     <arg name="map_file" value="$(arg map_file)"/>
     <arg name="localization_type" value="iris_lama_loc2d"/>
   </include>
 
   <!--rc lab uyen localization-->
-  <!-- <arg name="map_file" default="$(find assignment-5-AlexMorrow239)/maps/isaac_rc_lab_uyen/processed/map.yaml"/> -->
+  <!-- <arg name="map_file" default="$(find hsr-localization-navigation)/maps/isaac_rc_lab_uyen/processed/map.yaml"/> -->
   <!-- <include file="$(find hsrb_rosnav_config)/launch/hsrb_nav.launch"> -->
     <!-- <arg name="map_file" value="$(arg map_file)"/> -->
     <!-- <arg name="localization_type" value="iris_lama_loc2d"/> -->
