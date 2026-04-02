@@ -33,7 +33,6 @@ class Node:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        # self.point = point if point is not None else Point()
         self.parent = None
 
 class RRT:
@@ -192,7 +191,6 @@ class RRT:
         return inflated_grid
 
     def smooth_path(self, path, occupancy_grid, map_data, smoothing_factor=0.7, prune_threshold=0.1):
-     # TODO: Separate x and y coordinates from the path
         if len(path) < 3:
             return path
         
@@ -201,19 +199,16 @@ class RRT:
             path_x.append(x)
             path_y.append(y)
         
-        # TODO: Fit a spline to the path
         tck, u = splprep([path_x, path_y], s=smoothing_factor, k=min(3, len(path) - 1))
         
         # Generate more points along the spline for a smoother path
         u_new = np.linspace(0, 1, len(path) * 3)
         x_smooth, y_smooth = splev(u_new, tck)
 
-        # TODO: Prune unnecessary nodes while ensuring obstacle clearance
         pruned_path = [(x_smooth[0], y_smooth[0])]
         for i in range(1, len(x_smooth)):
             dist = np.hypot(x_smooth[i] - pruned_path[-1][0], y_smooth[i] - pruned_path[-1][1])
             
-            # TODO: Only add points that maintain clearance and are sufficiently distant from the last
             # Check if point is clear of obstacles
             candidate_point = Node(x_smooth[i], y_smooth[i])
 
@@ -257,9 +252,7 @@ class RRT:
             cur_node = cur_node.parent
 
         path = path[::-1]  # Reverse to get path from start to goal
-        #print(path)
-    
-        # TODO: Apply smoothing and pruning
+
         smoothed_path = self.smooth_path(path, self.occupancy_grid, self.map_data)
         return smoothed_path
 
@@ -292,8 +285,6 @@ class RobotController:
         self.goal = new_goal
 
     def detect_obstacle(self, scan_data):
-        # TODO detect if obstacle is in robot path
-
         # Parameters
         lookahead_distance = 0.4  # Close obstacles only
         danger_angle_range = 0.5  # Narrow forward cone
@@ -326,7 +317,6 @@ class RobotController:
         return False
 
     def update_path(self):
-        # TODO: update path from the curruent location of the robot
         cur_position = self.robot_position()
         rrt = RRT(cur_position, self.goal, self.map_size, self.occupancy_grid, self.map_data)
         new_path = rrt.plan()

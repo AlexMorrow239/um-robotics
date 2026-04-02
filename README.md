@@ -14,7 +14,7 @@ Rapidly-exploring Random Tree (RRT) based path planning and navigation for the H
 
 ### [Human Tracking & Gesture Recognition](human-tracking/)
 
-Human tracking and pointing gesture recognition on the HSR platform, enabling the robot to detect, follow, and respond to human gestures.
+Human tracking and pointing gesture recognition on the HSR platform. Uses OpenPose skeleton detection and a face-to-hand 3D pointing vector to identify target locations, then navigates toward them.
 
 ## Acknowledgments
 

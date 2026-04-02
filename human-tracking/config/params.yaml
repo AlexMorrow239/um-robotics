@@ -1,0 +1,78 @@
+# Camera topics for HSR in Omniverse
+camera:
+  rgb_topic: "/hsrb/head_rgbd_sensor/rgb/image_rect_color"
+  depth_topic: "/hsrb/head_rgbd_sensor/depth_registered/image_rect_raw"
+
+# OpenPose parameters
+openpose:
+  model_folder: "/opt/openpose/models/"  # Update to your OpenPose installation path
+  model_pose: "BODY_25"
+  net_resolution: "320x176"  # Lower resolution for faster processing
+  min_confidence: 0.3
+
+# Human detection
+human_detection:
+  min_keypoints: 10  # Minimum keypoints to consider human detected
+
+# Human tracking with head movement (Phase 2.2)
+tracking:
+  control_rate: 20  # Hz - control loop frequency
+
+  # Image center target (will be updated from camera_info)
+  target_x: 320  # pixels (default for 640x480 image)
+  target_y: 240  # pixels
+
+  # PID controller for head pan (horizontal tracking)
+  pid_pan:
+    kp: 0.001      # Proportional gain
+    ki: 0.0001     # Integral gain
+    kd: 0.0005     # Derivative gain
+
+  # PID controller for head tilt (vertical tracking)
+  pid_tilt:
+    kp: 0.001      # Proportional gain
+    ki: 0.0001     # Integral gain
+    kd: 0.0005     # Derivative gain
+
+  # Safety limits
+  max_pan_velocity: 0.5   # rad/s
+  max_tilt_velocity: 0.5  # rad/s
+  min_confidence: 0.3     # Minimum keypoint confidence to track
+
+  # Deadband - ignore small errors to prevent jitter
+  deadband_x: 10  # pixels
+  deadband_y: 10  # pixels
+
+  # Initial centering parameters (at start of TRACKING)
+  centering_frame_threshold: 10  # consecutive frames human must be centered (0.5s at 20Hz)
+  centering_timeout: 5.0         # seconds before proceeding without stable centering
+
+# Pointing detection (Phase 3)
+pointing:
+  # Arm keypoint confidence threshold
+  min_confidence: 0.3
+
+  # Arm straightness: max deviation from straight line (degrees)
+  # <25 degrees = arm is extended/pointing
+  straightness_threshold: 25.0
+
+  # Minimum arm extension: wrist must be >50% arm length from shoulder
+  min_extension_ratio: 0.5
+
+  # Hold duration: how long pointing must be held before confirming (seconds)
+  hold_duration: 3.0
+
+  # Direction stability: max variance in pointing direction during hold (degrees)
+  direction_stability_deg: 10.0
+
+  # Noise filtering parameters (heavy filtering for stability)
+  direction_history_size: 10        # Frames in sliding window (0.5s at 20Hz)
+  keypoint_smoothing_alpha: 0.2     # EMA factor (lower = more smoothing, 0.2 = 80% history weight)
+
+  # Movement parameters after pointing is confirmed
+  stop_distance: 0.5       # meters - stop this far from target
+  max_linear_velocity: 0.3  # m/s
+  max_angular_velocity: 0.5 # rad/s
+
+  # Safety timeout for movement (seconds)
+  movement_timeout: 10.0

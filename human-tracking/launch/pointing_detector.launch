@@ -1,0 +1,31 @@
+<launch>
+  <!-- Load parameters from yaml file -->
+  <rosparam file="$(find human_point_follower)/config/params.yaml" command="load"/>
+
+    <!-- OpenPose Bridge Node -->
+  <node name="openpose_bridge"
+        pkg="human_point_follower"
+        type="openpose_bridge.py"
+        output="screen">
+  </node>
+
+  <!-- Human Point Follower - unified state machine for tracking and pointing -->
+  <node name="human_point_follower"
+        pkg="human_point_follower"
+        type="human_point_follower.py"
+        output="screen">
+  </node>
+
+  <!-- Image viewer for skeleton overlay from OpenPose -->
+  <node name="skeleton_viewer"
+        pkg="image_view"
+        type="image_view"
+        output="screen">
+    <remap from="image" to="/openpose/skeleton_image"/>
+  </node>
+  
+  <!-- RViz for visualization -->
+  <node pkg='rviz' type="rviz" name='rviz'
+    args= '-d $(find human_point_follower)/rviz/pointing_detector.rviz'/>
+
+</launch>
