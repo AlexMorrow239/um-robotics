@@ -18,4 +18,4 @@ Human tracking and pointing gesture recognition on the HSR platform, enabling th
 
 ## Acknowledgments
 
-These projects were developed as part of CSC 752 (Robotics) at the University of Miami.
+These projects were developed as part of CSC 752 (Robotics) at the University of Miami. Taught by Ubbo Visser.
