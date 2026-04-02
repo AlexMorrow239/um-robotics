@@ -22,15 +22,15 @@ The planner builds a tree of collision-free paths by repeatedly sampling random 
 
 ## Path Planning Results
 
-| | |
-|:---:|:---:|
-| ![Segment 1](segment-1.png) | ![Segment 2](segment-2.png) |
-| ![Segment 3](segment-3.png) | ![Segment 4](segment-4.png) |
+|                                      |                                    |
+| :----------------------------------: | :--------------------------------: |
+| ![Segment 1](./images/segment-1.png) | ![Segment 2](images/segment-2.png) |
+|  ![Segment 3](images/segment-3.png)  | ![Segment 4](images/segment-4.png) |
 
 ## Key Files
 
-| File | Description |
-|------|-------------|
+| File                      | Description                                                          |
+| ------------------------- | -------------------------------------------------------------------- |
 | `scripts/rrt_students.py` | RRT planner, obstacle checking, path smoothing, and robot controller |
-| `launch/` | ROS launch files for the planning environment |
-| `rviz/` | RViz configuration for visualizing the tree and planned paths |
+| `launch/`                 | ROS launch files for the planning environment                        |
+| `rviz/`                   | RViz configuration for visualizing the tree and planned paths        |

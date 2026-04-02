@@ -10,16 +10,19 @@ Final project demonstrating human tracking and pointing gesture recognition on t
 ## Demos
 
 ### Human Tracking
+
 The robot identifies and follows a human moving through the environment.
 
-https://github.com/AlexMorrow239/um-robotics/raw/main/final/human_track_demo.webm
+<https://github.com/AlexMorrow239/um-robotics/raw/main/final/human_track_demo.webm>
 
 ### Point Left Recognition
+
 The robot detects a leftward pointing gesture and responds accordingly.
 
-https://github.com/AlexMorrow239/um-robotics/raw/main/final/point_left_demo.webm
+<https://github.com/AlexMorrow239/um-robotics/raw/main/final/point_left_demo.webm>
 
 ### Point Right Recognition
+
 The robot detects a rightward pointing gesture and responds accordingly.
 
-https://github.com/AlexMorrow239/um-robotics/raw/main/final/point_right_demo.webm
+<https://github.com/AlexMorrow239/um-robotics/raw/main/final/point_right_demo.webm>
