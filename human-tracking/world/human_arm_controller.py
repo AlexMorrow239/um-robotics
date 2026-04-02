@@ -933,7 +933,7 @@ def initialize_arm_controller(character_path="/World/Characters/F_Business_02"):
         try:
             if rospy.core.is_initialized():
                 controller.init_ros_subscribers()
-        except:
+        except Exception:
             pass
         return controller
     return None

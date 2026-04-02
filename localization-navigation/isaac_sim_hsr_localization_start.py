@@ -35,11 +35,6 @@ print(f'RVIZ path:', RVIZ_PATH)
 
 # Commands to start processes
 # No DEBUG
-# roslaunch_cmd = f"roslaunch {LAUNCH_PATH} > /dev/null 2>&1"
-# isaac_sim_cmd = f"{ISAAC_SIM_PYTHON_PATH} {ISAAC_WORLD_PATH} > /dev/null 2>&1"
-# rviz_cmd = f"rviz -d {RVIZ_PATH} > /dev/null 2>&1"
-
-# DEBUG
 roslaunch_cmd = f"roslaunch {LAUNCH_PATH}"
 isaac_sim_cmd = f"{ISAAC_SIM_PYTHON_PATH} {ISAAC_WORLD_PATH}"
 rviz_cmd = f"rviz -d {RVIZ_PATH}"

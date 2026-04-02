@@ -204,7 +204,7 @@ class HumanPointFollower:
                 self.joint_state_sub = rospy.Subscriber(topic, JointState, self.joint_state_callback, queue_size=1)
                 rospy.loginfo(f"Subscribed to joint states on: {topic}")
                 break
-            except:
+            except rospy.ROSException:
                 continue
 
         # Visualization subscriptions (from Isaac Sim world)

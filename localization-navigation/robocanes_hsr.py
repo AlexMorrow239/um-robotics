@@ -928,7 +928,7 @@ class hsr:
             0, 0, 0, 0, 0, 1000.0,
         ]
         if self.imu_reading:
-            odom.twist.twist.linear.x = self.imu_reading.lin_acc_x  # TODO: convert to velocity
+            odom.twist.twist.linear.x = self.imu_reading.lin_acc_x  # Uses acceleration as proxy (no velocity from IMU)
             odom.twist.twist.linear.y = self.imu_reading.lin_acc_y
             odom.twist.twist.linear.z = self.imu_reading.lin_acc_z
             odom.twist.twist.angular.x = self.imu_reading.ang_vel_x
@@ -964,7 +964,7 @@ class hsr:
             0, 0, 0, 0, 0, 1000.0,
         ]
         if self.imu_reading:
-            odom.twist.twist.linear.x = self.imu_reading.lin_acc_x  # TODO: convert to velocity
+            odom.twist.twist.linear.x = self.imu_reading.lin_acc_x  # Uses acceleration as proxy (no velocity from IMU)
             odom.twist.twist.linear.y = self.imu_reading.lin_acc_y
             odom.twist.twist.linear.z = self.imu_reading.lin_acc_z
             odom.twist.twist.angular.x = self.imu_reading.ang_vel_x

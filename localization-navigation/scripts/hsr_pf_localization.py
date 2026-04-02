@@ -1015,9 +1015,6 @@ class hsr_pf_localization:
         return global_laser_points
     
     def calculate_dist_angle(self, base_coords, point_coords):
-        # DEBUG
-        # print('In calculate_dist_angle!')
-
         displacement_x = point_coords[0] - base_coords[0]
         displacement_y = point_coords[1] - base_coords[1]
         dist = math.sqrt(displacement_x ** 2 + displacement_y ** 2)

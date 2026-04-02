@@ -2,6 +2,10 @@
 
 ROS-based robotics projects using the Toyota HSR (Human Support Robot) in NVIDIA Isaac Sim environments. Covers localization, path planning, and human-robot interaction.
 
+> **Note:** These projects depend on private University of Miami Robotics and Toyota HSR simulation environments and are not publicly runnable. Code is provided for reference and portfolio purposes.
+
+**Built with:** Python · ROS · NVIDIA Isaac Sim · OpenPose · Numba · NumPy · SciPy · OpenCV
+
 ## Projects
 
 ### [Localization & Navigation](localization-navigation/)
