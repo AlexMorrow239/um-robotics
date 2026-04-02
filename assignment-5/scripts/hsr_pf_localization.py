@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+"""Particle filter localization for the Toyota HSR robot.
+
+Implements Monte Carlo localization using a particle filter with Numba-accelerated
+raycasting. Subscribes to laser scan and odometry data, publishes estimated pose
+and particle cloud visualizations to RViz.
+"""
 
 import ast
 import cv2
@@ -193,9 +199,6 @@ def process_particle_raycast_numba(elem, laser_ranges,
     # print(f'sigma:', sigma)
     # print(f'epsilon:', epsilon)
 
-    #####################################################
-    #TODO - Step 4 - Implement particle likelihoods.    #
-    #####################################################
     likelihoods = np.exp((-1 * (diff ** 2)) / (2 * (sigma ** 2))) + epsilon
 
     # print(f'likelihoods:', likelihoods)
@@ -1307,9 +1310,6 @@ class hsr_pf_localization:
         if len(particles) == 0:
             return np.zeros(3)  # Return a default zero position if no particles exist
         
-        ###############################################################################
-        #TODO - Step 7 - Implement mean_pos calculation.    #
-        ###############################################################################
         mean_x = np.average(particles[:, 0], weights=weights)
         mean_y = np.average(particles[:, 1], weights=weights)
         
@@ -1341,9 +1341,6 @@ class hsr_pf_localization:
         positions = (my_numbers + my_random) / N
         indexes = np.zeros(N, 'i')
 
-        ###############################################################################
-        #TODO - Step 5 - Implement universal stochastic or systematic resampling.    #
-        ###############################################################################
 
         slices = np.cumsum(weights) # Determine probability boundaries of each particle
         indexes = np.searchsorted(slices, positions) # Find where each position lands on the sample slices
