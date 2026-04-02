@@ -6,6 +6,21 @@ Autonomous localization and navigation system for the Toyota HSR (Human Support 
 
 ### Particle Filter Localization
 
+```mermaid
+flowchart LR
+    Odometry["Odometry<br/>(Δx, Δy, Δθ)"] --> Predict
+    LaserScan["Laser Scan"] --> Update
+
+    subgraph Particle Filter Loop
+        Predict["Predict<br/>(motion model)"]
+        Update["Update<br/>(raycasting weights)"]
+        Resample["Resample<br/>(systematic)"]
+        Predict --> Update --> Resample --> Predict
+    end
+
+    Resample --> Estimate["Pose Estimate<br/>(weighted mean)"]
+```
+
 The system uses a Monte Carlo particle filter to estimate the robot's pose (x, y, theta) within a known map. Key design considerations:
 
 - **Computational scaling:** The filter's cost scales linearly with the number of particles (N), requiring O(N) operations for prediction and resampling, and O(N \* M) for measurement updates where M is the number of sensor measurements.

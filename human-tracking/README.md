@@ -6,6 +6,18 @@ Human tracking and pointing gesture recognition on the Toyota HSR platform. The 
 
 ### State Machine
 
+```mermaid
+stateDiagram-v2
+    [*] --> SEARCHING
+    SEARCHING --> TRACKING : Human detected
+    TRACKING --> SEARCHING : Human lost
+    TRACKING --> DETECTED : Centered on human
+    DETECTED --> TRACKING : Lost centering
+    DETECTED --> NAVIGATING : Valid pointing gesture
+    NAVIGATING --> COMPLETED : Reached target
+    COMPLETED --> [*]
+```
+
 The system operates as a finite state machine with four states:
 
 1. **SEARCHING** -- The robot rotates in place, scanning for a human using OpenPose skeleton detection.

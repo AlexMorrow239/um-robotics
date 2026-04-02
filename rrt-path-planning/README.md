@@ -6,6 +6,24 @@ Rapidly-exploring Random Tree (RRT) based path planning and navigation for the T
 
 ### RRT Algorithm
 
+```mermaid
+flowchart TD
+    Start([Start]) --> QuickPath{"Direct path<br/>to goal clear?"}
+    QuickPath -- Yes --> DirectPath["Use direct path"]
+    QuickPath -- No --> Sample["Sample random point<br/>(with goal bias)"]
+    Sample --> Nearest["Find nearest<br/>tree node"]
+    Nearest --> Steer["Steer toward sample<br/>(fixed step size)"]
+    Steer --> CollCheck{"Collision<br/>free?"}
+    CollCheck -- No --> Sample
+    CollCheck -- Yes --> AddNode["Add node to tree"]
+    AddNode --> GoalCheck{"Goal<br/>reachable?"}
+    GoalCheck -- No --> Sample
+    GoalCheck -- Yes --> Extract["Extract path"]
+    Extract --> Smooth["Smooth path<br/>(spline interpolation)"]
+    DirectPath --> Navigate
+    Smooth --> Navigate(["Navigate"])
+```
+
 The planner builds a tree of collision-free paths by repeatedly sampling random configurations and extending the nearest tree node toward them:
 
 1. Sample a random point in the configuration space (with occasional goal-biased samples)
