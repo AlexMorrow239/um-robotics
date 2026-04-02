@@ -1,4 +1,10 @@
 #! /usr/bin/env python3
+"""RRT path planner and navigation controller for the Toyota HSR robot.
+
+Implements Rapidly-exploring Random Tree (RRT) path planning with obstacle
+inflation, dynamic replanning, and RViz visualization. Includes a robot
+controller that executes planned paths with real-time obstacle monitoring.
+"""
 import numpy as np
 import random
 import math
@@ -58,7 +64,6 @@ class RRT:
         return Node(x_rand, y_rand)
 
     def get_nearest_node(self, node):
-        #TODO: get nearest new node from node
         best_node = None
         best_dist = float('inf')
         for nei in self.node_list:
@@ -77,7 +82,6 @@ class RRT:
 
     def obstacle_free(self, xnear, xnew):
         rez = float(self.map_data.info.resolution) * 0.2
-        #TODO: check if your path between new node and nearest node is crossing obstacles
         dist = self.get_euclidean_distance(xnear, xnew)
         steps = int(dist / rez)
         for i in range(steps):
@@ -149,12 +153,10 @@ class RRT:
 
     def plan(self):
 
-        #TODO: Optionally you can check for a quick path to the goal or between nodes
         path = self.quick_path(self.start, self.goal)
         if path:
             return path
 
-        #TODO: plan the path from start to the goal node, check your nodes
         i = 0
         x_new = self.start
         while i < self.max_iter and self.get_euclidean_distance(x_new, self.goal) > self.step_size:
@@ -248,7 +250,6 @@ class RRT:
 
 
     def get_path(self, goal_node):
-        #TODO: get the path from goal to start
         path = []
         cur_node = goal_node
         while cur_node:
